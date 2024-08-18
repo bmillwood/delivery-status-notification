@@ -11,6 +11,7 @@ module Email.StatusCode
   , MessageContentOrMediaDetail(..), encodeMessageContentOrMediaDetail, decodeMessageContentOrMediaDetail
   , SecurityOrPolicyDetail(..), encodeSecurityOrPolicyDetail, decodeSecurityOrPolicyDetail
   , parse, parseWithRemainder
+  , encodeString
   ) where
 
 import Data.Char (isDigit, isSpace)
@@ -217,3 +218,13 @@ parse s = do
   if all isSpace r
     then Just code
     else Nothing
+
+encodeString :: StatusCode -> String
+encodeString (StatusCode cl sd) =
+  shows (encodeClass cl)
+  . showString "."
+  . shows subjectNum
+  . showString "."
+  $ show detailNum
+  where
+    (subjectNum, detailNum) = encodeSubjectDetail sd

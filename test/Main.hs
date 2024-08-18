@@ -17,7 +17,20 @@ main = forM_
       actual = parse input
     in
     if actual == expected
-    then pure ()
+    then case expected of
+      Nothing -> pure ()
+      Just code
+        | roundtrip == input -> pure ()
+        | otherwise -> error $ mconcat
+            [ "encodeString "
+            , show code
+            , " expected "
+            , show input
+            , " got "
+            , show roundtrip
+            ]
+        where
+          roundtrip = encodeString code
     else error $ mconcat
       [ "parse "
       , show input
