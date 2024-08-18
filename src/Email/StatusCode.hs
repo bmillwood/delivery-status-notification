@@ -12,11 +12,14 @@ module Email.StatusCode
   , SecurityOrPolicyDetail(..), encodeSecurityOrPolicyDetail, decodeSecurityOrPolicyDetail
   , parse, parseWithRemainder
   , encodeString
+  , parser
   ) where
 
 import Data.Char (isDigit, isSpace)
 import GHC.Generics (Generic)
 import Text.Read (readMaybe)
+
+import qualified Data.Attoparsec.Text as AP
 
 data StatusCode = StatusCode Class SubjectDetail
   deriving (Generic, Eq, Ord, Read, Show)
@@ -168,17 +171,6 @@ data SubjectDetail
   | SecurityOrPolicy SecurityOrPolicyDetail
   deriving (Generic, Eq, Ord, Read, Show)
 
-parseNums :: String -> Maybe ((Int, Int, Int), String)
-parseNums inp = do
-  (classNum, afterClass) <- digitDot inp
-  (subjectNum, afterSubject) <- digitDot afterClass
-  case span isDigit afterSubject of
-    (ns, rest) -> (, rest) . (classNum, subjectNum,) <$> readMaybe ns
-  where
-    digitDot s = case break (== '.') s of
-      (ns, _ : rest) -> (, rest) <$> readMaybe ns
-      _ -> Nothing
-
 decodeSubjectDetail :: Int -> Int -> Maybe SubjectDetail
 decodeSubjectDetail subjectNum detailNum =
   case subjectNum of
@@ -204,6 +196,17 @@ encodeSubjectDetail sd = case sd of
   MessageContentOrMedia d -> (6, encodeMessageContentOrMediaDetail d)
   SecurityOrPolicy d -> (7, encodeSecurityOrPolicyDetail d)
 
+parseNums :: String -> Maybe ((Int, Int, Int), String)
+parseNums inp = do
+  (classNum, afterClass) <- digitDot inp
+  (subjectNum, afterSubject) <- digitDot afterClass
+  case span isDigit afterSubject of
+    (ns, rest) -> (, rest) . (classNum, subjectNum,) <$> readMaybe ns
+  where
+    digitDot s = case break (== '.') s of
+      (ns, _ : rest) -> (, rest) <$> readMaybe ns
+      _ -> Nothing
+
 parseWithRemainder :: String -> Maybe (StatusCode, String)
 parseWithRemainder s = do
   ((classNum, subjectNum, detailNum), rest) <- parseNums s
@@ -228,3 +231,20 @@ encodeString (StatusCode cl sd) =
   $ show detailNum
   where
     (subjectNum, detailNum) = encodeSubjectDetail sd
+
+parser :: AP.Parser StatusCode
+parser =
+  StatusCode
+  <$> classParser
+  <* AP.char '.'
+  <*> sdParser
+  where
+    classParser =
+      decodeClass <$> AP.decimal
+      >>= maybe (fail "invalid class") pure
+    sdParser =
+      decodeSubjectDetail
+        <$> AP.decimal
+        <* AP.char '.'
+        <*> AP.decimal
+      >>= maybe (fail "invalid subject/detail") pure
