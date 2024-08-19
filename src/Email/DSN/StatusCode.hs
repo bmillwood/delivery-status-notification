@@ -1,5 +1,5 @@
 -- | https://www.rfc-editor.org/rfc/rfc3463
-module Email.StatusCode
+module Email.DSN.StatusCode
   ( StatusCode(..)
   , Class(..), encodeClass, decodeClass
   , SubjectDetail(..), encodeSubjectDetail, decodeSubjectDetail
