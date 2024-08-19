@@ -1,7 +1,7 @@
 -- | https://www.rfc-editor.org/rfc/rfc3464
-module Email.DSN
+module Email.DSN.DeliveryStatus
   ( DeliveryStatus(..), PerRecipientField(..), RawField(..)
-  , deliveryStatusParser
+  , parser
   ) where
 
 import Control.Applicative
@@ -13,7 +13,7 @@ import GHC.Generics (Generic)
 
 import qualified Data.Attoparsec.Text as AP
 
-import qualified Email.StatusCode as ESC
+import qualified Email.DSN.StatusCode as DSC
 
 data RawField = RawField { fieldName :: Text, fieldBody :: Text }
   deriving (Generic, Eq, Ord, Read, Show)
@@ -77,7 +77,7 @@ isVchar c = c >= '\x21' && c <= '\x7e'
 -- the ones most useful for interpreting bounces.
 data PerRecipientField
   = FinalRecipient { addressType :: Text, address :: Text }
-  | Status ESC.StatusCode
+  | Status DSC.StatusCode
   | OtherPerRecipient RawField
   deriving (Generic, Eq, Ord, Read, Show)
 
@@ -96,7 +96,7 @@ perRecipientFieldParser = ofRaw =<< fieldParser
                 }
         "status" ->
           either fail (pure . Status)
-          $ AP.parseOnly (ESC.parser <* AP.endOfInput)
+          $ AP.parseOnly (DSC.parser <* AP.endOfInput)
           $ Text.dropWhile isSpace fieldBody
         _ -> pure $ OtherPerRecipient raw
 
@@ -112,8 +112,8 @@ data DeliveryStatus = DeliveryStatus
 -- | This parser isn't fully compliant with the RFC, since it omits the syntax
 -- variants marked as obsolete. The obsolete syntax may be supported in future,
 -- but was omitted for simplicity (my use cases didn't need it).
-deliveryStatusParser :: AP.Parser DeliveryStatus
-deliveryStatusParser =
+parser :: AP.Parser DeliveryStatus
+parser =
   DeliveryStatus
     <$> some1 fieldParser
     <*> some1 (AP.string "\r\n" *> some1 perRecipientFieldParser)

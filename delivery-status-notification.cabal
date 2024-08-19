@@ -1,6 +1,6 @@
 cabal-version:      3.0
 name:               delivery-status-notification
-version:            0.1.1.0
+version:            0.2.0.0
 synopsis:           Parse bounce messages per RFC3464, RFC3463
 
 description:
@@ -36,10 +36,9 @@ library
     import:           language
     import:           warnings
     exposed-modules:
-      Email.DSN
-      Email.StatusCode
+      Email.DSN.DeliveryStatus
+      Email.DSN.StatusCode
     -- other-modules:
-    -- other-extensions:
     build-depends:
       attoparsec ^>=0.14,
       base ^>=4.18.2.1,
@@ -49,11 +48,12 @@ library
 test-suite delivery-status-notification-test
     import:           language
     import:           warnings
-    -- other-modules:
-    -- other-extensions:
     type:             exitcode-stdio-1.0
     hs-source-dirs:   test
     main-is:          Main.hs
+    other-modules:
+      DeliveryStatus
+      StatusCode
     build-depends:
       attoparsec ^>=0.14,
       base ^>=4.18.2.1,
