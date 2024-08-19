@@ -3,6 +3,7 @@
 ## 0.1.1.0 -- 2024-08-18
 
 * added attoparsec `Email.StatusCode.parser`
+* added `Email.DSN`
 
 ## 0.1.0.0 -- 2024-08-18
 
