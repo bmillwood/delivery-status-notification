@@ -1,5 +1,9 @@
 # Revision history for delivery-status-notification
 
+## 0.2.0.1
+
+* dependency version updates
+
 ## 0.2.0.0 -- 2024-08-19
 
 * added attoparsec status code parser

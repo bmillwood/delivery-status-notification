@@ -1,6 +1,7 @@
 name: Build and run tests
 on:
 - pull_request
+- push
 
 # Below copies significantly from
 # https://github.com/haskell-actions/setup/blob/v2.6.2/README.md
@@ -20,7 +21,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        ghc-version: ['9.6']
+        ghc-version: ['9.6', '9.8', '9.10', '9.12']
     defaults:
       run:
         shell: bash -euo pipefail {0}
@@ -29,7 +30,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Set up GHC ${{ matrix.ghc-version }}
-        uses: haskell-actions/setup@v2.7.5
+        uses: haskell-actions/setup@v2.8.0
         id: setup
         with:
           ghc-version: ${{ matrix.ghc-version }}
@@ -42,7 +43,7 @@ jobs:
 
       - name: Configure the build
         run: |
-          cabal configure --enable-tests --enable-benchmarks --disable-documentation
+          cabal configure --enable-tests --enable-benchmarks --enable-documentation
           cabal build all --dry-run
         # The last step generates dist-newstyle/cache/plan.json for the cache key.
 

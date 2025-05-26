@@ -1,6 +1,6 @@
 cabal-version:      3.0
 name:               delivery-status-notification
-version:            0.2.0.0
+version:            0.2.0.1
 synopsis:           Parse bounce messages per RFC3464, RFC3463
 
 description:
@@ -41,7 +41,7 @@ library
     -- other-modules:
     build-depends:
       attoparsec ^>=0.14,
-      base ^>=4.18,
+      base >= 4.18 && < 4.22,
       text >= 2.0 && < 2.2,
     hs-source-dirs:   src
 
@@ -56,5 +56,5 @@ test-suite delivery-status-notification-test
       StatusCode
     build-depends:
       attoparsec ^>=0.14,
-      base ^>=4.18,
+      base >= 4.18 && < 4.22,
       delivery-status-notification,
