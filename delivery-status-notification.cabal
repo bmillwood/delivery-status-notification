@@ -22,7 +22,7 @@ extra-doc-files:    CHANGELOG.md
 
 source-repository head
   type: git
-  location: git://github.com/bmillwood/delivery-status-notification.git
+  location: https://github.com/bmillwood/delivery-status-notification
 
 common warnings
     ghc-options: -Wall
